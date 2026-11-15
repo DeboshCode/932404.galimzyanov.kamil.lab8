@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Дневник чтения: календарь, записи о книгах и прогресс по страницам.">
+    <title>Трекер чтения</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="/style.css">
+    <script type="module" src="/app.js"></script>
+</head>
+<body>
+    <a class="skip-link" href="#main">Перейти к содержимому</a>
+    <header class="page-header">
+        <div class="container header-content">
+            <div>
+                <p class="eyebrow">Камиль Галимзянов · 932404</p>
+                <h1>Трекер чтения</h1>
+                <p class="intro">Каждая прочитанная страница имеет значение.</p>
+            </div>
+            <button id="add-log" type="button">+ Добавить запись</button>
+        </div>
+    </header>
+
+    <main id="main" class="container" tabindex="-1">
+        <section class="period-panel" aria-labelledby="period-heading">
+            <div>
+                <p class="eyebrow muted">Ваше чтение за период</p>
+                <h2 id="period-heading" aria-live="polite">Загрузка…</h2>
+            </div>
+            <div class="period-controls">
+                <fieldset class="period-choice">
+                    <legend class="visually-hidden">Период отчёта</legend>
+                    <label><input type="radio" name="period" value="week"><span>Неделя</span></label>
+                    <label><input type="radio" name="period" value="month" checked><span>Месяц</span></label>
+                </fieldset>
+                <div class="date-field">
+                    <label class="visually-hidden" for="anchor-date">Дата в периоде</label>
+                    <input id="anchor-date" type="date" required>
+                </div>
+                <div class="period-navigation">
+                    <button id="previous-period" class="icon-button secondary" type="button" aria-label="Предыдущий месяц">←</button>
+                    <button id="today" class="secondary" type="button">Сегодня</button>
+                    <button id="next-period" class="icon-button secondary" type="button" aria-label="Следующий месяц">→</button>
+                </div>
+            </div>
+        </section>
+
+        <p id="message" class="message" role="status" aria-live="polite"></p>
+        <p id="loading-status" class="visually-hidden" role="status"></p>
+
+        <div id="report" aria-busy="true">
+            <section class="stats" aria-label="Сводная статистика за выбранный период">
+                <article class="stat"><p>Прочитано страниц</p><output id="total-pages">0</output></article>
+                <article class="stat"><p>Дней с чтением</p><output id="reading-days">0</output></article>
+                <article class="stat"><p>Книг за период</p><output id="books-count">0</output></article>
+                <article class="stat"><p>Записей в дневнике</p><output id="entries-count">0</output></article>
+            </section>
+
+            <div class="overview-grid">
+                <section class="panel" aria-labelledby="calendar-heading">
+                    <div class="section-heading">
+                        <h2 id="calendar-heading">Календарь чтения</h2>
+                        <p id="calendar-month" class="muted"></p>
+                    </div>
+                    <p class="section-hint">Выберите день, чтобы посмотреть записи.</p>
+                    <div class="weekdays" aria-hidden="true"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>
+                    <div id="calendar-days" class="calendar-days" role="group" aria-label="Дни календаря"></div>
+                    <p class="calendar-legend"><span class="legend-dot" aria-hidden="true"></span> В отмеченные дни вы читали. Число внизу — страницы.</p>
+                </section>
+
+                <section class="panel" aria-labelledby="books-heading">
+                    <h2 id="books-heading">Прогресс по книгам</h2>
+                    <p class="section-hint">Книги выбранного периода. Прогресс учитывает все записи.</p>
+                    <div id="books-list" class="books-list"></div>
+                    <p id="books-empty" class="empty-text">Добавьте первую запись, чтобы увидеть прогресс.</p>
+                </section>
+            </div>
+
+            <section class="journal" aria-labelledby="journal-heading">
+                <div class="section-heading">
+                    <div><p class="eyebrow muted">Читательский дневник</p><h2 id="journal-heading" tabindex="-1">Записи за период</h2></div>
+                    <button id="clear-day" class="secondary" type="button" hidden>Весь период</button>
+                </div>
+                <p id="list-caption" class="section-hint"></p>
+                <ul id="logs-list" class="logs-list"></ul>
+                <div id="logs-empty" class="empty-state" hidden>
+                    <h3>Здесь пока нет записей</h3>
+                    <p>Добавьте книгу и количество прочитанных страниц.</p>
+                    <button id="add-empty" type="button">Добавить запись</button>
+                </div>
+            </section>
+        </div>
+        <noscript><p>Для работы дневника включите JavaScript.</p></noscript>
+    </main>
+
+    <footer class="page-footer"><div class="container footer-content"><p>Книга за книгой. Страница за страницей.</p><a href="https://github.com/DeboshCode/932404.galimzyanov.kamil.lab8">Репозиторий проекта</a></div></footer>
+
+    <dialog id="log-dialog" aria-labelledby="dialog-heading">
+        <div class="dialog-heading"><h2 id="dialog-heading">Новая запись</h2><button id="close-dialog" class="icon-button secondary" type="button" aria-label="Закрыть форму">×</button></div>
+        <form id="log-form">
+            <label for="book-title">Название книги</label>
+            <input id="book-title" name="book_title" type="text" maxlength="200" required autofocus>
+            <div class="form-row">
+                <div><label for="pages-read">Прочитано страниц</label><input id="pages-read" name="pages_read" type="number" min="1" max="9007199254740991" step="1" required></div>
+                <div><label for="log-date">Дата чтения</label><input id="log-date" name="date" type="date" required></div>
+            </div>
+            <label for="log-notes">Заметка</label>
+            <textarea id="log-notes" name="notes" rows="3" maxlength="5000" placeholder="Что запомнилось из прочитанного?"></textarea>
+            <label for="book-total">Всего страниц в книге <span class="optional">необязательно</span></label>
+            <input id="book-total" name="total_pages" type="number" min="1" max="9007199254740991" step="1" aria-describedby="total-hint">
+            <p id="total-hint" class="field-hint">Объём нужен для расчёта прогресса. Его можно задать позже.</p>
+            <p id="form-error" class="form-error" role="alert"></p>
+            <div class="actions"><button id="save-log" type="submit">Добавить запись</button><button id="cancel-dialog" class="secondary" type="button">Отмена</button></div>
+        </form>
+    </dialog>
+
+    <dialog id="delete-dialog" aria-labelledby="delete-heading" aria-describedby="delete-description">
+        <h2 id="delete-heading">Удалить запись?</h2>
+        <p id="delete-description" class="delete-description"></p>
+        <p id="delete-error" class="form-error" role="alert"></p>
+        <div class="actions"><button id="confirm-delete" class="danger" type="button">Удалить запись</button><button id="cancel-delete" class="secondary" type="button">Отмена</button></div>
+    </dialog>
+</body>
+</html>
